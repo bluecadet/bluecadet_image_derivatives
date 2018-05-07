@@ -1,0 +1,29 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - bluecadet_image_derivatives
+title: 'Queue Fields for derivatives'
+id: bcid_setup_queue
+weight: 0
+module: bluecadet_image_derivatives
+callback: bluecadet_image_derivatives_setup_queue
+scheduler:
+  id: crontab
+  configuration:
+    rules:
+      - '5 1 * * *'
+    catch_up: 0
+launcher:
+  id: serial
+  configuration:
+    timeouts:
+      lock_timeout: 3600
+    launcher:
+      thread: 0
+logger:
+  id: database
+  configuration:
+    method: '3'
+    expire: 1209600
+    retain: 1000

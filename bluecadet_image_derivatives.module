@@ -1,0 +1,143 @@
+<?php
+
+use Drupal\Core\Config\Config;
+use Drupal\Core\Entity\EntityInterface;
+
+use Drupal\Core\Queue\SuspendQueueException;
+
+/**
+ * Implements hook_cron()
+ */
+function bluecadet_image_derivatives_setup_queue() {
+  _queue_all_images_for_derivatives();
+}
+
+/**
+ * Implements hook_cron()
+ */
+function bluecadet_image_derivatives_run_queue() {
+  $queue_factory = \Drupal::service('queue');
+  $derivative_queue = $queue_factory->get('bcid_create_derivative');
+
+  $queue_worker = \Drupal::service('plugin.manager.queue_worker');
+  $derivative_queue_worker = $queue_worker->createInstance('bcid_create_derivative');
+
+  $start = time();
+
+  while((time() - $start) < 15) {
+    $item = $derivative_queue->claimItem();
+    if ($item) {
+      try {
+        $derivative_queue_worker->processItem($item->data);
+        $derivative_queue->deleteItem($item);
+      }
+      catch (SuspendQueueException $e) {
+        $derivative_queue->releaseItem($item);
+        break;
+      }
+      catch (\Exception $e) {
+        watchdog_exception('bluecadet_image_derivatives', $e);
+      }
+    }
+  }
+}
+
+function _queue_all_images_for_derivatives() {
+  $settings = \Drupal::state()->get('bluecadet_image_derivatives.settings', []);
+
+  $queue_factory = \Drupal::service('queue');
+  $derivative_queue = $queue_factory->get('bcid_create_derivative');
+
+  foreach ($settings as $field_id => $field_config) {
+    $field_def = explode('.', $field_id);
+
+    foreach ($field_config as $image_style_id => $val) {
+      if ($val) {
+
+        $table_name = $field_def[0] . '__' . $field_def[2];
+        $db = \Drupal\Core\Database\Database::getConnection();
+
+        $query = $db->select($table_name, 'f');
+        $query->fields('f');
+        $query->condition('bundle', $field_def[1]);
+        $r = $query->execute()->fetchAll();
+
+        foreach ($r as $f) {
+
+          $item = new \stdClass();
+          $item->fid = $f->{$field_def[2] . '_target_id'};
+          $item->image_style_id = $image_style_id;
+          $derivative_queue->createItem($item);
+
+        }
+      }
+    }
+  }
+}
+
+function bluecadet_image_derivatives_entity_insert(EntityInterface $entity) {
+  _process_bluecadet_image_derivatives($entity);
+}
+
+function bluecadet_image_derivatives_entity_update(EntityInterface $entity) {
+  _process_bluecadet_image_derivatives($entity);
+}
+
+function _process_bluecadet_image_derivatives(EntityInterface $entity) {
+  $settings = \Drupal::state()->get('bluecadet_image_derivatives.settings', []);
+  $ex_settings = _explode_derivative_settings($settings);
+  // ksm($ex_settings);
+
+  $queue_factory = \Drupal::service('queue');
+  $derivative_queue = $queue_factory->get('bcid_create_derivative');
+
+  // ksm($entity->getEntityType()->getBundleConfigDependency('attraction'));
+
+  // ksm($entity, $entity->getEntityType(), $entity->getEntityTypeId());
+
+  $entity_type = $entity->getEntityTypeId();
+  $bundle = $entity->bundle();
+
+  if (isset($ex_settings[$entity_type][$bundle])) {
+
+    foreach($ex_settings[$entity_type][$bundle] as $field => $field_image_style_settings) {
+      foreach ($field_image_style_settings as $image_style_id => $val) {
+        if ($val) {
+          // ksm($field);
+
+          if (isset($entity->{$field}->entity)) {
+            // ksm($entity->{$field}->entity, $entity->{$field}->entity->getType());
+
+            $media = $entity->{$field}->entity;
+            $b = $media->bundle();
+            $media_type = \Drupal::entityTypeManager()->getStorage('media_bundle')->load($b);
+            $source_field = $media_type->getTypeConfiguration()['source_field'];
+            // ksm($media, $b, $media_type, $media_type->getTypeConfiguration()['source_field']);
+            //, $media_type->getSource()->getConfiguration()['source_field']);
+
+            // ksm($media->{$source_field}->getValue());
+
+            $field_value = current($media->{$source_field}->getValue());
+
+            $item = new \stdClass();
+            $item->fid = $field_value->target_id;
+            $item->image_style_id = $image_style_id;
+            $derivative_queue->createItem($item);
+
+          }
+        }
+      }
+    }
+  }
+}
+
+function _explode_derivative_settings($settings) {
+  $ex_settings = [];
+
+  foreach ($settings as $field_id => $field_config) {
+    $field_def = explode('.', $field_id);
+    $ex_settings[$field_def[0]][$field_def[1]][$field_def[2]] = $field_config;
+  }
+
+  return $ex_settings;
+}

@@ -2,7 +2,7 @@ type: module
 name: Bluecadet Image Derivatives
 description: 'Creates Derivatives for specific images for specific image styles. Typically for use in headless CMS approaches.'
 package: Bluecadet
-version: '8.x-1.0-dev'
+version: '8.x-2.0-dev'
 core: 8.x
 
 dependencies:

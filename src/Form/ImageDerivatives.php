@@ -127,11 +127,15 @@ class ImageDerivatives extends FormBase {
           ];
 
           foreach ($is_defs as $is_def) {
+            $val = FALSE;
+            if (isset($settings[$field_compound_id]) && isset($settings[$field_compound_id][$is_def['id']])) {
+              $val = $settings[$field_compound_id][$is_def['id']];
+            }
             $row[$is_def['id']] = [
               '#type' => 'checkbox',
               '#title' => $is_def['name'],
               '#title_display' => 'invisible',
-              '#default_value' => ($settings[$field_compound_id][$is_def['id']])? $settings[$field_compound_id][$is_def['id']] : FALSE,
+              '#default_value' => $val,
             ];
           }
 

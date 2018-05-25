@@ -36,7 +36,10 @@ class CreateDerivative extends QueueWorkerBase {
       $img_path_uri = $file->getFileUri();
 
       $image_style_uri = $image_style->buildUri($img_path_uri);
-      $image_style->createDerivative($img_path_uri, $image_style_uri);
+
+      if (!file_exists($image_style_uri)) {
+        $image_style->createDerivative($img_path_uri, $image_style_uri);
+      }
     }
   }
 }

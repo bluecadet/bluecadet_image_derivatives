@@ -1,0 +1,6 @@
+<?php
+
+function bluecadet_image_derivatives_uninstall() {
+  \Drupal::configFactory()->getEditable('ultimate_cron.job.bluecadet_image_derivatives_run_queue')->delete();
+  \Drupal::configFactory()->getEditable('ultimate_cron.job.bluecadet_image_derivatives_setup_queue')->delete();
+}

@@ -48,7 +48,7 @@ function _queue_all_images_for_derivatives() {
   $queue_factory = \Drupal::service('queue');
   $derivative_queue = $queue_factory->get('bcid_create_derivative');
 
-  foreach ($settings as $field_id => $field_config) {
+  foreach ($settings['styles'] as $field_id => $field_config) {
     $field_def = explode('.', $field_id);
 
     foreach ($field_config as $image_style_id => $val) {
@@ -73,8 +73,7 @@ function _queue_all_images_for_derivatives() {
           $source_field = $media_type->getSource()->getConfiguration()['source_field'];
           $field_value = current($media->{$source_field}->getValue());
 
-          // @TODO: make this a variable.
-          if (!empty($field_value) && $b == 'image') {
+          if (!empty($field_value) && in_array($b, $settings['bundles'])) {
 
             $item = new \stdClass();
             $item->fid = $field_value['target_id'];
@@ -98,7 +97,7 @@ function bluecadet_image_derivatives_entity_update(EntityInterface $entity) {
 
 function _process_bluecadet_image_derivatives(EntityInterface $entity) {
   $settings = \Drupal::state()->get('bluecadet_image_derivatives.settings', []);
-  $ex_settings = _explode_derivative_settings($settings);
+  $ex_settings = _explode_derivative_settings($settings['styles']);
 
   $queue_factory = \Drupal::service('queue');
   $derivative_queue = $queue_factory->get('bcid_create_derivative');
@@ -119,8 +118,7 @@ function _process_bluecadet_image_derivatives(EntityInterface $entity) {
 
             $field_value = current($media->{$source_field}->getValue());
 
-            // @TODO: make this a variable.
-            if (!empty($field_value) && $b == 'image') {
+            if (!empty($field_value) && in_array($b, $settings['bundles'])) {
               $item = new \stdClass();
               $item->fid = $field_value->target_id;
               $item->image_style_id = $image_style_id;

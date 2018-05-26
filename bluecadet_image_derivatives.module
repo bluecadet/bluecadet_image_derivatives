@@ -3,7 +3,7 @@
 use Drupal\Core\Config\Config;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Queue\SuspendQueueException;
-use Drupal\media_entity\Entity\Media;
+use Drupal\media\Entity\Media;
 
 /**
  * Implements hook_cron()
@@ -69,8 +69,8 @@ function _queue_all_images_for_derivatives() {
           $media = Media::Load($f->mid);
 
           $b = $media->bundle();
-          $media_type = \Drupal::entityTypeManager()->getStorage('media_bundle')->load($b);
-          $source_field = $media_type->getTypeConfiguration()['source_field'];
+          $media_type = \Drupal::entityTypeManager()->getStorage('media_type')->load($b);
+          $source_field = $media_type->getSource()->getConfiguration()['source_field'];
           $field_value = current($media->{$source_field}->getValue());
 
           // @TODO: make this a variable.
@@ -99,13 +99,9 @@ function bluecadet_image_derivatives_entity_update(EntityInterface $entity) {
 function _process_bluecadet_image_derivatives(EntityInterface $entity) {
   $settings = \Drupal::state()->get('bluecadet_image_derivatives.settings', []);
   $ex_settings = _explode_derivative_settings($settings);
-  // ksm($ex_settings);
 
   $queue_factory = \Drupal::service('queue');
   $derivative_queue = $queue_factory->get('bcid_create_derivative');
-
-  // ksm($entity->getEntityType()->getBundleConfigDependency('attraction'));
-  // ksm($entity, $entity->getEntityType(), $entity->getEntityTypeId());
 
   $entity_type = $entity->getEntityTypeId();
   $bundle = $entity->bundle();
@@ -115,18 +111,11 @@ function _process_bluecadet_image_derivatives(EntityInterface $entity) {
     foreach($ex_settings[$entity_type][$bundle] as $field => $field_image_style_settings) {
       foreach ($field_image_style_settings as $image_style_id => $val) {
         if ($val) {
-          // ksm($field);
-
           if (isset($entity->{$field}->entity)) {
-            // ksm($entity->{$field}->entity, $entity->{$field}->entity->getType());
-
             $media = $entity->{$field}->entity;
             $b = $media->bundle();
-            $media_type = \Drupal::entityTypeManager()->getStorage('media_bundle')->load($b);
-            $source_field = $media_type->getTypeConfiguration()['source_field'];
-            // ksm($media, $b);
-            //, $media_type->getSource()->getConfiguration()['source_field']);
-            // ksm($media->{$source_field}->getValue());
+            $media_type = \Drupal::entityTypeManager()->getStorage('media_type')->load($b);
+            $source_field = $media_type->getSource()->getConfiguration()['source_field'];
 
             $field_value = current($media->{$source_field}->getValue());
 

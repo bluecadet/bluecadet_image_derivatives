@@ -72,6 +72,23 @@ class ImageDerivatives extends FormBase {
 
     $settings = \Drupal::state()->get('bluecadet_image_derivatives.settings', []);
 
+    $bundles = \Drupal::entityManager()->getBundleInfo('media');
+    $bundle_options = [];
+
+    foreach ($bundles as $bundle_id => $bundle_data) {
+      $bundle_options[$bundle_id] = $bundle_data['label'];
+    }
+
+    $form['bundles'] = [
+      '#type' => 'select',
+      '#title' => 'Media Bundles',
+      '#description' => 'Please choose which Media bundles contain Images as their Primary source fields.',
+      '#options' => $bundle_options,
+      '#multiple' => TRUE,
+      '#default_value' => isset($settings['bundles'])? $settings['bundles'] : [],
+      '#suffix' => '<hr><br>',
+    ];
+
     $field_map = \Drupal::entityManager()->getFieldMap();
 
     $entity_ref_fields = [];
@@ -128,8 +145,8 @@ class ImageDerivatives extends FormBase {
 
           foreach ($is_defs as $is_def) {
             $val = FALSE;
-            if (isset($settings[$field_compound_id]) && isset($settings[$field_compound_id][$is_def['id']])) {
-              $val = $settings[$field_compound_id][$is_def['id']];
+            if (isset($settings['styles'][$field_compound_id]) && isset($settings['styles'][$field_compound_id][$is_def['id']])) {
+              $val = $settings['styles'][$field_compound_id][$is_def['id']];
             }
             $row[$is_def['id']] = [
               '#type' => 'checkbox',
@@ -155,6 +172,7 @@ class ImageDerivatives extends FormBase {
 
     $form['sub_actions'] = [
       '#type' => 'actions',
+      '#prefix' => '<hr>',
       'reset' => [
         '#type' => 'submit',
         '#value' => $this->t('Flush & Reset Queue'),
@@ -183,7 +201,10 @@ class ImageDerivatives extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
 
     $values = $form_state->getValues();
-    \Drupal::state()->set('bluecadet_image_derivatives.settings', $values['styles']);
+    \Drupal::state()->set('bluecadet_image_derivatives.settings', [
+      'bundles' => $values['bundles'],
+      'styles' => $values['styles']
+    ]);
 
     drupal_set_message('You have saved the settings.');
   }

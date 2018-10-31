@@ -84,7 +84,7 @@ function _queue_all_images_for_derivatives() {
         $query->join('media', 'm', "m.mid = f." . $field_def[2] . '_target_id');
         $query->fields('m', ['mid']);
         $query->condition('f.bundle', $field_def[1]);
-        $query->condition('m.bundle', "image");
+        $query->condition('m.bundle', $settings['bundles'], "IN");
         $r = $query->execute()->fetchAll();
 
         foreach ($r as $f) {

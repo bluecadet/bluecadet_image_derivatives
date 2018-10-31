@@ -141,3 +141,7 @@ function _explode_derivative_settings($settings) {
 
   return $ex_settings;
 }
+
+function bluecadet_image_derivatives_image_style_flush($style) {
+  _queue_all_images_for_derivatives();
+}

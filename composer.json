@@ -12,6 +12,7 @@
   "minimum-stability": "dev",
   "require": {
     "php": "^5.3.3 || ^7.0",
+    "drupal/ultimate_cron": "^8.2@alpha",
     "composer/installers": "^1.0@dev",
     "oomphinc/composer-installers-extender": "~1.0"
   }

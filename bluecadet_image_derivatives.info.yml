@@ -5,6 +5,8 @@ package: Bluecadet
 version: '8.x-2.0.2'
 core: 8.x
 
+configure: bluecadet_image_derivatives.settings
+
 dependencies:
  - ultimate_cron
  - media (>= 8.5.3)

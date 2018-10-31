@@ -72,6 +72,12 @@ class ImageDerivatives extends FormBase {
 
     $settings = \Drupal::state()->get('bluecadet_image_derivatives.settings', []);
 
+    $form['log_activity'] = [
+      '#type' => 'checkbox',
+      '#title' => 'Log Activity',
+      '#default_value' => isset($settings['log_activity']) ? $settings['log_activity'] : FALSE,
+    ];
+
     $bundles = \Drupal::entityManager()->getBundleInfo('media');
     $bundle_options = [];
 
@@ -203,7 +209,8 @@ class ImageDerivatives extends FormBase {
     $values = $form_state->getValues();
     \Drupal::state()->set('bluecadet_image_derivatives.settings', [
       'bundles' => $values['bundles'],
-      'styles' => $values['styles']
+      'styles' => $values['styles'],
+      'log_activity' => $values['log_activity'],
     ]);
 
     drupal_set_message('You have saved the settings.');

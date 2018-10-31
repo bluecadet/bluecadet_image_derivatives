@@ -16,6 +16,8 @@ function bluecadet_image_derivatives_setup_queue() {
  * Implements hook_cron()
  */
 function bluecadet_image_derivatives_run_queue() {
+  $module_settings = \Drupal::state()->get('bluecadet_image_derivatives.settings', []);
+
   $queue_factory = \Drupal::service('queue');
   $derivative_queue = $queue_factory->get('bcid_create_derivative');
 
@@ -28,12 +30,25 @@ function bluecadet_image_derivatives_run_queue() {
     $item = $derivative_queue->claimItem();
     if ($item) {
       try {
+        if ($module_settings['log_activity']) {
+          \Drupal::logger('bluecadet_image_derivatives')->debug("Trying to run item. item_id: @item_id, FID: @fid", [
+            '@item_id' => $item->item_id,
+            '@fid' => $item->data->fid,
+          ]);
+        }
+
         $derivative_queue_worker->processItem($item->data);
         $derivative_queue->deleteItem($item);
       }
+      catch (RequeueException $e) {
+        // The worker requested the task be immediately requeued.
+        $queue->releaseItem($item);
+      }
       catch (SuspendQueueException $e) {
+
         $derivative_queue->releaseItem($item);
-        break;
+
+        watchdog_exception('bluecadet_image_derivatives', $e);
       }
       catch (\Exception $e) {
         watchdog_exception('bluecadet_image_derivatives', $e);

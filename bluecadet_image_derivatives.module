@@ -1,6 +1,10 @@
 <?php
 
-use Drupal\Core\Config\Config;
+/**
+ * @file
+ */
+
+use Drupal\Core\Database\Database;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Queue\SuspendQueueException;
 use Drupal\media\Entity\Media;
@@ -26,7 +30,7 @@ function bluecadet_image_derivatives_run_queue() {
 
   $start = time();
 
-  while((time() - $start) < 8) {
+  while ((time() - $start) < 8) {
     $item = $derivative_queue->claimItem();
     if ($item) {
       try {
@@ -57,6 +61,9 @@ function bluecadet_image_derivatives_run_queue() {
   }
 }
 
+/**
+ *
+ */
 function _queue_all_images_for_derivatives() {
   $settings = \Drupal::state()->get('bluecadet_image_derivatives.settings', []);
 
@@ -70,7 +77,7 @@ function _queue_all_images_for_derivatives() {
       if ($val) {
 
         $table_name = $field_def[0] . '__' . $field_def[2];
-        $db = \Drupal\Core\Database\Database::getConnection();
+        $db = Database::getConnection();
 
         $query = $db->select($table_name, 'f');
         $query->fields('f');
@@ -102,14 +109,23 @@ function _queue_all_images_for_derivatives() {
   }
 }
 
+/**
+ *
+ */
 function bluecadet_image_derivatives_entity_insert(EntityInterface $entity) {
   _process_bluecadet_image_derivatives($entity);
 }
 
+/**
+ *
+ */
 function bluecadet_image_derivatives_entity_update(EntityInterface $entity) {
   _process_bluecadet_image_derivatives($entity);
 }
 
+/**
+ *
+ */
 function _process_bluecadet_image_derivatives(EntityInterface $entity) {
   $settings = \Drupal::state()->get('bluecadet_image_derivatives.settings', []);
   $ex_settings = _explode_derivative_settings($settings['styles']);
@@ -122,7 +138,7 @@ function _process_bluecadet_image_derivatives(EntityInterface $entity) {
 
   if (isset($ex_settings[$entity_type][$bundle])) {
 
-    foreach($ex_settings[$entity_type][$bundle] as $field => $field_image_style_settings) {
+    foreach ($ex_settings[$entity_type][$bundle] as $field => $field_image_style_settings) {
       foreach ($field_image_style_settings as $image_style_id => $val) {
         if ($val) {
           if (isset($entity->{$field}->entity)) {
@@ -146,6 +162,9 @@ function _process_bluecadet_image_derivatives(EntityInterface $entity) {
   }
 }
 
+/**
+ *
+ */
 function _explode_derivative_settings($settings) {
   $ex_settings = [];
 
@@ -157,6 +176,9 @@ function _explode_derivative_settings($settings) {
   return $ex_settings;
 }
 
+/**
+ *
+ */
 function bluecadet_image_derivatives_image_style_flush($style) {
   _queue_all_images_for_derivatives();
 }

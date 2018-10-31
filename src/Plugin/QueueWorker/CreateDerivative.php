@@ -2,11 +2,7 @@
 
 namespace Drupal\bluecadet_image_derivatives\Plugin\QueueWorker;
 
-use Drupal\Core\Entity\EntityStorageInterface;
-use Drupal\Core\Queue\QueueFactory;
-use Drupal\Core\Queue\QueueInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 use Drupal\image\Entity\ImageStyle;
 use Drupal\file\Entity\File;
@@ -32,7 +28,6 @@ class CreateDerivative extends QueueWorkerBase {
     $image_style_id = $data->image_style_id;
 
     $file = File::load($fid);
-
 
     if ($module_settings['log_activity']) {
       \Drupal::logger('bluecadet_image_derivatives')->debug("Starting item. FID: @fid", [
@@ -64,7 +59,7 @@ class CreateDerivative extends QueueWorkerBase {
         $image_style->createDerivative($img_path_uri, $image_style_uri);
 
       }
-      else if ($module_settings['log_activity']) {
+      elseif ($module_settings['log_activity']) {
         \Drupal::logger('bluecadet_image_derivatives')->debug("Derivative Exists. Skipping. FID: @fid", [
           '@fid' => $fid,
         ]);
@@ -78,4 +73,5 @@ class CreateDerivative extends QueueWorkerBase {
       }
     }
   }
+
 }

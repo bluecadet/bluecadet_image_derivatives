@@ -7,10 +7,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\image\Entity\ImageStyle;
 
 use Drupal\Core\Queue\QueueFactory;
-use Drupal\Core\Queue\QueueInterface;
-use Drupal\Core\Queue\QueueWorkerInterface;
 use Drupal\Core\Queue\QueueWorkerManagerInterface;
-use Drupal\Core\Queue\SuspendQueueException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -19,15 +16,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ImageDerivatives extends FormBase {
 
   /**
-   * @var QueueFactory
+   * @var \Drupal\Core\Queue\QueueFactory
    */
   protected $queueFactory;
 
   /**
-   * @var QueueWorkerManagerInterface
+   * @var \Drupal\Core\Queue\QueueWorkerManagerInterface
    */
   protected $queueManager;
-
 
   /**
    * {@inheritdoc}
@@ -67,7 +63,7 @@ class ImageDerivatives extends FormBase {
     $form['data'] = [
       'message' => [
         '#markup' => \Drupal::translation()->formatPlural($queue_num, $msg_sing, $msg_plur, [':num' => $queue_num]),
-      ]
+      ],
     ];
 
     $settings = \Drupal::state()->get('bluecadet_image_derivatives.settings', []);
@@ -91,7 +87,7 @@ class ImageDerivatives extends FormBase {
       '#description' => 'Please choose which Media bundles contain Images as their Primary source fields.',
       '#options' => $bundle_options,
       '#multiple' => TRUE,
-      '#default_value' => isset($settings['bundles'])? $settings['bundles'] : [],
+      '#default_value' => isset($settings['bundles']) ? $settings['bundles'] : [],
       '#suffix' => '<hr><br>',
     ];
 
@@ -126,7 +122,7 @@ class ImageDerivatives extends FormBase {
       $is_headers[] = $style_def->label();
       $is_defs[] = [
         'id' => $style_id,
-        'name' => $style_def->label()
+        'name' => $style_def->label(),
       ];
     }
 
@@ -136,7 +132,7 @@ class ImageDerivatives extends FormBase {
       '#empty' => t('There are no fields.'),
       '#attributes' => [
         'class' => [''],
-      ]
+      ],
     ];
 
     foreach ($bundleFields as $entity_id => $bundles) {
@@ -146,7 +142,7 @@ class ImageDerivatives extends FormBase {
           $row = [
             'label' => [
               '#markup' => $field_compound_id,
-            ]
+            ],
           ];
 
           foreach ($is_defs as $is_def) {
@@ -161,7 +157,6 @@ class ImageDerivatives extends FormBase {
               '#default_value' => $val,
             ];
           }
-
 
           $form['styles'][$field_compound_id] = $row;
         }
@@ -182,13 +177,13 @@ class ImageDerivatives extends FormBase {
       'reset' => [
         '#type' => 'submit',
         '#value' => $this->t('Flush & Reset Queue'),
-        '#submit' => array([$this, 'reset']),
+        '#submit' => [[$this, 'reset']],
       ],
       'flush' => [
         '#type' => 'submit',
         '#value' => $this->t('Flush Queue only'),
-        '#submit' => array([$this, 'flush']),
-      ]
+        '#submit' => [[$this, 'flush']],
+      ],
     ];
 
     return $form;
@@ -216,6 +211,9 @@ class ImageDerivatives extends FormBase {
     drupal_set_message('You have saved the settings.');
   }
 
+  /**
+   *
+   */
   public function reset(array &$form, FormStateInterface $form_state) {
     $derivative_queue = $this->queueFactory->get('bcid_create_derivative');
 
@@ -225,6 +223,9 @@ class ImageDerivatives extends FormBase {
     drupal_set_message('Queue cleared and rest.');
   }
 
+  /**
+   *
+   */
   public function flush(array &$form, FormStateInterface $form_state) {
     $derivative_queue = $this->queueFactory->get('bcid_create_derivative');
 
@@ -232,4 +233,5 @@ class ImageDerivatives extends FormBase {
 
     drupal_set_message('Queue cleared.');
   }
+
 }

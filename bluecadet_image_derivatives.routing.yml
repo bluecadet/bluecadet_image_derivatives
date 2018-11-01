@@ -5,3 +5,19 @@ bluecadet_image_derivatives.settings:
     _title: 'Auto Image Derivatives'
   requirements:
     _permission: 'access administration pages'
+
+bluecadet_image_derivatives.process_image:
+  path: '/admin/config/media/precache/process-image'
+  defaults:
+    _form: '\Drupal\bluecadet_image_derivatives\Form\ProcessImage'
+    _title: 'Process Image Derivatives'
+  requirements:
+    _permission: 'access administration pages'
+
+bluecadet_image_derivatives.queue_table:
+  path: '/admin/config/media/precache/queue-table'
+  defaults:
+    _controller: '\Drupal\bluecadet_image_derivatives\Controller\ImageDerivativesQueueTable::viewTable'
+    _title: 'Image Derivative Queue Table'
+  requirements:
+    _permission: 'access administration pages'

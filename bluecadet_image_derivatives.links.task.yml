@@ -1,0 +1,15 @@
+bluecadet_image_derivatives.settings:
+  title: 'Auto Image Derivatives Settings'
+  route_name: bluecadet_image_derivatives.settings
+  base_route: bluecadet_image_derivatives.settings
+
+
+bluecadet_image_derivatives.process_image:
+  title: 'Process Individual Images'
+  route_name: bluecadet_image_derivatives.process_image
+  base_route: bluecadet_image_derivatives.settings
+
+bluecadet_image_derivatives.queue_table:
+  title: 'View Queue table details'
+  route_name: bluecadet_image_derivatives.queue_table
+  base_route: bluecadet_image_derivatives.settings

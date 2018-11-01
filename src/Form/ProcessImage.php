@@ -28,8 +28,7 @@ class ProcessImage extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function __construct(QueueFactory $queue, QueueWorkerManagerInterface $queue_manager)
-  {
+  public function __construct(QueueFactory $queue, QueueWorkerManagerInterface $queue_manager) {
     $this->queueFactory = $queue;
     $this->queueManager = $queue_manager;
   }
@@ -37,8 +36,7 @@ class ProcessImage extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container)
-  {
+  public static function create(ContainerInterface $container) {
     return new static(
       $container->get('queue'),
       $container->get('plugin.manager.queue_worker')
@@ -60,7 +58,6 @@ class ProcessImage extends FormBase {
     $derivative_queue = $this->queueFactory->get('bcid_create_derivative');
 
     // $queue_num = $derivative_queue->numberOfItems();
-
     $options = [];
     $styles = ImageStyle::loadMultiple();
     foreach ($styles as $style_id => $style_def) {
@@ -110,7 +107,7 @@ class ProcessImage extends FormBase {
 
       // Validate file is an image file.
       $errors = file_validate_is_image($file);
-      if(!empty($errors)) {
+      if (!empty($errors)) {
         $form_state->setErrorByName('fid', "FID: $fid: Is not an image.");
       }
     }
@@ -143,32 +140,26 @@ class ProcessImage extends FormBase {
       $data->image_style_id = $values['image_style_id'];
 
       $derivative_queue_worker->processItem($data);
-    } catch (SuspendQueueException $e) {
+    }
+    catch (SuspendQueueException $e) {
       watchdog_exception('bluecadet_image_derivatives', $e);
     }
     catch (\Exception $e) {
       watchdog_exception('bluecadet_image_derivatives', $e);
     }
 
-    // drupal_set_message('You have saved the settings.');
+    // drupal_set_message('You have saved the settings.');.
   }
 
-
-  // public function reset(array &$form, FormStateInterface $form_state) {
-  //   $derivative_queue = $this->queueFactory->get('bcid_create_derivative');
-
-  //   $derivative_queue->deleteQueue();
-
-  //   _queue_all_images_for_derivatives();
+  // Public function reset(array &$form, FormStateInterface $form_state) {
+  //   $derivative_queue = $this->queueFactory->get('bcid_create_derivative');.
+  // $derivative_queue->deleteQueue();
+  // _queue_all_images_for_derivatives();
   //   drupal_set_message('Queue cleared and rest.');
-  // }
-
-  // public function flush(array &$form, FormStateInterface $form_state) {
-  //   $derivative_queue = $this->queueFactory->get('bcid_create_derivative');
-
-  //   $derivative_queue->deleteQueue();
-
-  //   drupal_set_message('Queue cleared.');
-  // }
-
+  // }.
+  // Public function flush(array &$form, FormStateInterface $form_state) {
+  //   $derivative_queue = $this->queueFactory->get('bcid_create_derivative');.
+  // $derivative_queue->deleteQueue();
+  // drupal_set_message('Queue cleared.');
+  // }.
 }

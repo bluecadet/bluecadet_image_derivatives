@@ -8,6 +8,9 @@ use Drupal\Core\Queue\QueueFactory;
 use Drupal\Core\Queue\QueueWorkerManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ *
+ */
 class ImageDerivativesQueueTable extends ControllerBase {
 
   /**
@@ -38,6 +41,9 @@ class ImageDerivativesQueueTable extends ControllerBase {
     );
   }
 
+  /**
+   *
+   */
   public function viewTable() {
     $derivative_queue = $this->queueFactory->get('bcid_create_derivative');
 
@@ -79,4 +85,5 @@ class ImageDerivativesQueueTable extends ControllerBase {
 
     return $data;
   }
+
 }

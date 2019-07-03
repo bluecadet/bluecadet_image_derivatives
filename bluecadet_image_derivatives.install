@@ -2,10 +2,11 @@
 
 /**
  * @file
+ * Remove config on uninstall.
  */
 
 /**
- *
+ * Implements hook_uninstall().
  */
 function bluecadet_image_derivatives_uninstall() {
   \Drupal::configFactory()->getEditable('ultimate_cron.job.bcid_run_queue')->delete();

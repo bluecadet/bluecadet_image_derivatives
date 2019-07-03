@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * Exposes functionality for creating image derivatives through cron runs.
  */
 
 use Drupal\Core\Database\Database;
@@ -10,14 +11,14 @@ use Drupal\Core\Queue\SuspendQueueException;
 use Drupal\media\Entity\Media;
 
 /**
- * Implements hook_cron()
+ * Cron Job callback to queue all images.
  */
 function bluecadet_image_derivatives_setup_queue() {
   _queue_all_images_for_derivatives();
 }
 
 /**
- * Implements hook_cron()
+ * Cron Job callback to process image queue.
  */
 function bluecadet_image_derivatives_run_queue() {
   $module_settings = \Drupal::state()->get('bluecadet_image_derivatives.settings', []);
@@ -62,7 +63,7 @@ function bluecadet_image_derivatives_run_queue() {
 }
 
 /**
- *
+ * Find and queue images to be processed.
  */
 function _queue_all_images_for_derivatives() {
   $settings = \Drupal::state()->get('bluecadet_image_derivatives.settings', []);
@@ -110,21 +111,21 @@ function _queue_all_images_for_derivatives() {
 }
 
 /**
- *
+ * Implements hook_entity_insert().
  */
 function bluecadet_image_derivatives_entity_insert(EntityInterface $entity) {
   _process_bluecadet_image_derivatives($entity);
 }
 
 /**
- *
+ * Implements hook_entity_update().
  */
 function bluecadet_image_derivatives_entity_update(EntityInterface $entity) {
   _process_bluecadet_image_derivatives($entity);
 }
 
 /**
- *
+ * Process and entity to queue needed derivatives.
  */
 function _process_bluecadet_image_derivatives(EntityInterface $entity) {
   $settings = \Drupal::state()->get('bluecadet_image_derivatives.settings', []);
@@ -166,7 +167,7 @@ function _process_bluecadet_image_derivatives(EntityInterface $entity) {
 }
 
 /**
- *
+ * Helper function to explode module settings.
  */
 function _explode_derivative_settings($settings) {
   $ex_settings = [];
@@ -180,7 +181,7 @@ function _explode_derivative_settings($settings) {
 }
 
 /**
- *
+ * Flush Queue.
  */
 function bluecadet_image_derivatives_image_style_flush($style) {
   _queue_all_images_for_derivatives();

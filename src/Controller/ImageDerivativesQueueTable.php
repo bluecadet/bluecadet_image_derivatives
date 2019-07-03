@@ -9,16 +9,20 @@ use Drupal\Core\Queue\QueueWorkerManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- *
+ * Table to display status of Image Derivative Queue.
  */
 class ImageDerivativesQueueTable extends ControllerBase {
 
   /**
+   * QueueFactory.
+   *
    * @var \Drupal\Core\Queue\QueueFactory
    */
   protected $queueFactory;
 
   /**
+   * QueueWorkerManagerInterface.
+   *
    * @var \Drupal\Core\Queue\QueueWorkerManagerInterface
    */
   protected $queueManager;
@@ -42,7 +46,7 @@ class ImageDerivativesQueueTable extends ControllerBase {
   }
 
   /**
-   *
+   * Method to construct table.
    */
   public function viewTable() {
     $derivative_queue = $this->queueFactory->get('bcid_create_derivative');

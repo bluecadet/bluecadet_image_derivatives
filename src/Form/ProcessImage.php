@@ -11,16 +11,20 @@ use Drupal\image\Entity\ImageStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- *
+ * Create Derivatives for a specific image.
  */
 class ProcessImage extends FormBase {
 
   /**
+   * QueueFactory.
+   *
    * @var \Drupal\Core\Queue\QueueFactory
    */
   protected $queueFactory;
 
   /**
+   * QueueWorkerManagerInterface.
+   *
    * @var \Drupal\Core\Queue\QueueWorkerManagerInterface
    */
   protected $queueManager;
@@ -122,7 +126,6 @@ class ProcessImage extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
 
     $values = $form_state->getValues();
-    ksm($values);
 
     $module_settings = \Drupal::state()->get('bluecadet_image_derivatives.settings', []);
 
@@ -151,15 +154,4 @@ class ProcessImage extends FormBase {
     // drupal_set_message('You have saved the settings.');.
   }
 
-  // Public function reset(array &$form, FormStateInterface $form_state) {
-  //   $derivative_queue = $this->queueFactory->get('bcid_create_derivative');.
-  // $derivative_queue->deleteQueue();
-  // _queue_all_images_for_derivatives();
-  //   drupal_set_message('Queue cleared and rest.');
-  // }.
-  // Public function flush(array &$form, FormStateInterface $form_state) {
-  //   $derivative_queue = $this->queueFactory->get('bcid_create_derivative');.
-  // $derivative_queue->deleteQueue();
-  // drupal_set_message('Queue cleared.');
-  // }.
 }

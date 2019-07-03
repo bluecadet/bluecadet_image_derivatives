@@ -10,16 +10,20 @@ use Drupal\image\Entity\ImageStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- *
+ * Allows Admin to choose which image fields and image styles to be processed.
  */
 class ImageDerivatives extends FormBase {
 
   /**
+   * QueueFactory.
+   *
    * @var \Drupal\Core\Queue\QueueFactory
    */
   protected $queueFactory;
 
   /**
+   * QueueManager.
+   *
    * @var \Drupal\Core\Queue\QueueWorkerManagerInterface
    */
   protected $queueManager;
@@ -167,6 +171,12 @@ class ImageDerivatives extends FormBase {
     return $form;
   }
 
+  /**
+   * Build bundle Fields data structure.
+   *
+   * @return array
+   *   Data structure
+   */
   protected function buildBundleFields() {
     $bundleFields = [];
     $field_map = \Drupal::entityManager()->getFieldMap();
@@ -196,13 +206,6 @@ class ImageDerivatives extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    parent::validateForm($form, $form_state);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
 
     $values = $form_state->getValues();
@@ -216,7 +219,7 @@ class ImageDerivatives extends FormBase {
   }
 
   /**
-   *
+   * Reset the queue.
    */
   public function reset(array &$form, FormStateInterface $form_state) {
     $derivative_queue = $this->queueFactory->get('bcid_create_derivative');
@@ -228,7 +231,7 @@ class ImageDerivatives extends FormBase {
   }
 
   /**
-   *
+   * Flush the queue.
    */
   public function flush(array &$form, FormStateInterface $form_state) {
     $derivative_queue = $this->queueFactory->get('bcid_create_derivative');

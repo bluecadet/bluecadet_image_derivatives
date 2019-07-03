@@ -128,32 +128,35 @@ function bluecadet_image_derivatives_entity_update(EntityInterface $entity) {
  */
 function _process_bluecadet_image_derivatives(EntityInterface $entity) {
   $settings = \Drupal::state()->get('bluecadet_image_derivatives.settings', []);
-  $ex_settings = _explode_derivative_settings($settings['styles']);
 
-  $queue_factory = \Drupal::service('queue');
-  $derivative_queue = $queue_factory->get('bcid_create_derivative');
+  if (!empty($settings)) {
+    $ex_settings = _explode_derivative_settings($settings['styles']);
 
-  $entity_type = $entity->getEntityTypeId();
-  $bundle = $entity->bundle();
+    $queue_factory = \Drupal::service('queue');
+    $derivative_queue = $queue_factory->get('bcid_create_derivative');
 
-  if (isset($ex_settings[$entity_type][$bundle])) {
+    $entity_type = $entity->getEntityTypeId();
+    $bundle = $entity->bundle();
 
-    foreach ($ex_settings[$entity_type][$bundle] as $field => $field_image_style_settings) {
-      foreach ($field_image_style_settings as $image_style_id => $val) {
-        if ($val) {
-          if (isset($entity->{$field}->entity)) {
-            $media = $entity->{$field}->entity;
-            $b = $media->bundle();
-            $media_type = \Drupal::entityTypeManager()->getStorage('media_type')->load($b);
-            $source_field = $media_type->getSource()->getConfiguration()['source_field'];
+    if (isset($ex_settings[$entity_type][$bundle])) {
 
-            $field_value = current($media->{$source_field}->getValue());
+      foreach ($ex_settings[$entity_type][$bundle] as $field => $field_image_style_settings) {
+        foreach ($field_image_style_settings as $image_style_id => $val) {
+          if ($val) {
+            if (isset($entity->{$field}->entity)) {
+              $media = $entity->{$field}->entity;
+              $b = $media->bundle();
+              $media_type = \Drupal::entityTypeManager()->getStorage('media_type')->load($b);
+              $source_field = $media_type->getSource()->getConfiguration()['source_field'];
 
-            if (!empty($field_value) && in_array($b, $settings['bundles'])) {
-              $item = new \stdClass();
-              $item->fid = $field_value->target_id;
-              $item->image_style_id = $image_style_id;
-              $derivative_queue->createItem($item);
+              $field_value = current($media->{$source_field}->getValue());
+
+              if (!empty($field_value) && in_array($b, $settings['bundles'])) {
+                $item = new \stdClass();
+                $item->fid = $field_value->target_id;
+                $item->image_style_id = $image_style_id;
+                $derivative_queue->createItem($item);
+              }
             }
           }
         }

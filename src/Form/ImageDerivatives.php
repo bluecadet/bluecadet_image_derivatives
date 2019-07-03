@@ -90,28 +90,7 @@ class ImageDerivatives extends FormBase {
       '#suffix' => '<hr><br>',
     ];
 
-    $field_map = \Drupal::entityManager()->getFieldMap();
-
-    $entity_ref_fields = [];
-    $bundleFields = [];
-    foreach ($field_map as $entity_id => $fields) {
-      $bundles = \Drupal::entityManager()->getBundleInfo($entity_id);
-      foreach ($bundles as $bundle_id => $bundle_name) {
-        $fields = \Drupal::entityManager()->getFieldDefinitions($entity_id, $bundle_id);
-
-        foreach ($fields as $field_name => $field_definition) {
-          if ($field_definition->getType() == 'entity_reference' &&
-              $field_definition->getFieldStorageDefinition()->isBaseField() == FALSE) {
-
-            $field_settings = $field_definition->getSettings();
-
-            if ($field_settings['handler'] == 'default:media') {
-              $bundleFields[$entity_id][$bundle_id][$field_name] = $field_definition;
-            }
-          }
-        }
-      }
-    }
+    $bundleFields = $this->buildBundleFields();
 
     $styles = ImageStyle::loadMultiple();
 
@@ -136,7 +115,7 @@ class ImageDerivatives extends FormBase {
 
     foreach ($bundleFields as $entity_id => $bundles) {
       foreach ($bundles as $bundle_id => $fields) {
-        foreach ($fields as $field_id => $field_def) {
+        foreach (array_keys($fields) as $field_id) {
           $field_compound_id = $entity_id . '.' . $bundle_id . '.' . $field_id;
           $row = [
             'label' => [
@@ -186,6 +165,32 @@ class ImageDerivatives extends FormBase {
     ];
 
     return $form;
+  }
+
+  protected function buildBundleFields() {
+    $bundleFields = [];
+    $field_map = \Drupal::entityManager()->getFieldMap();
+
+    foreach ($field_map as $entity_id => $fields) {
+      $bundles = \Drupal::entityManager()->getBundleInfo($entity_id);
+      foreach (array_keys($bundles) as $bundle_id) {
+        $fields = \Drupal::entityManager()->getFieldDefinitions($entity_id, $bundle_id);
+
+        foreach ($fields as $field_name => $field_definition) {
+          if ($field_definition->getType() == 'entity_reference' &&
+              $field_definition->getFieldStorageDefinition()->isBaseField() == FALSE) {
+
+            $field_settings = $field_definition->getSettings();
+
+            if ($field_settings['handler'] == 'default:media') {
+              $bundleFields[$entity_id][$bundle_id][$field_name] = $field_definition;
+            }
+          }
+        }
+      }
+    }
+
+    return $bundleFields;
   }
 
   /**

@@ -11,9 +11,9 @@
   "license": "GPL-2.0+",
   "minimum-stability": "dev",
   "require": {
-    "php": "^5.3.3 || ^7.0",
+    "php": "^7.0",
     "drupal/ultimate_cron": "^2.0@alpha",
-    "composer/installers": "^1.0@dev",
-    "oomphinc/composer-installers-extender": "~1.0"
+    "composer/installers": "^1.9",
+    "oomphinc/composer-installers-extender": "^2.0"
   }
 }

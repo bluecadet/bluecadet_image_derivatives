@@ -2,3 +2,9 @@
 
 1.x branch is for media handled without the core Media module.
 2.x branch is for media handled WITH the core Media module.
+
+## Changelog
+
+### 8.x-2.1.0
+
+- Updated dependencies so we can use Composer v2

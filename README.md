@@ -3,7 +3,13 @@
 1.x branch is for media handled without the core Media module.
 2.x branch is for media handled WITH the core Media module.
 
+Available on packagist, https://packagist.org/packages/bluecadet/bluecadet_image_derivatives
+
 ## Changelog
+
+### 8.x-2.2.0
+
+- Update for Drupal 9 compatability
 
 ### 8.x-2.1.0
 

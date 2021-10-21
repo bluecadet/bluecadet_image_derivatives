@@ -2,6 +2,9 @@
 
 namespace Drupal\bluecadet_image_derivatives\Form;
 
+use Drupal\Core\Entity\EntityTypeBundleInfo;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Queue\QueueFactory;
@@ -29,11 +32,37 @@ class ImageDerivatives extends FormBase {
   protected $queueManager;
 
   /**
+   * Entity Type Manager.
+   *
+   * @var Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * Entity Type Manager.
+   *
+   * @var Drupal\Core\Entity\EntityTypeBundleInfo
+   */
+  protected $entityTypeBundleInfo;
+
+  /**
+   * Entity Type Manager.
+   *
+   * @var Drupal\Core\Entity\EntityFieldManager
+   */
+  protected $entityFieldManager;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct(QueueFactory $queue, QueueWorkerManagerInterface $queue_manager) {
+  public function __construct(QueueFactory $queue, QueueWorkerManagerInterface $queue_manager, EntityTypeManagerInterface $entity_type_manager, EntityTypeBundleInfo $entity_type_bundle_info, EntityFieldManager $entity_field_manager) {
     $this->queueFactory = $queue;
     $this->queueManager = $queue_manager;
+    $this->entityTypeManager = $entity_type_manager;
+    $this->entityTypeBundleInfo = $entity_type_bundle_info;
+    $this->entityFieldManager = $entity_field_manager;
+
+    $this->messenger();
   }
 
   /**
@@ -42,7 +71,10 @@ class ImageDerivatives extends FormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('queue'),
-      $container->get('plugin.manager.queue_worker')
+      $container->get('plugin.manager.queue_worker'),
+      $container->get('entity_type.manager'),
+      $container->get('entity_type.bundle.info'),
+      $container->get('entity_field.manager')
     );
   }
 
@@ -77,7 +109,7 @@ class ImageDerivatives extends FormBase {
       '#default_value' => isset($settings['log_activity']) ? $settings['log_activity'] : FALSE,
     ];
 
-    $bundles = \Drupal::entityManager()->getBundleInfo('media');
+    $bundles = $this->entityTypeBundleInfo->getBundleInfo('media');
     $bundle_options = [];
 
     foreach ($bundles as $bundle_id => $bundle_data) {
@@ -179,12 +211,12 @@ class ImageDerivatives extends FormBase {
    */
   protected function buildBundleFields() {
     $bundleFields = [];
-    $field_map = \Drupal::entityManager()->getFieldMap();
+    $field_map = $this->entityFieldManager->getFieldMap();
 
     foreach ($field_map as $entity_id => $fields) {
-      $bundles = \Drupal::entityManager()->getBundleInfo($entity_id);
+      $bundles = $this->entityTypeBundleInfo->getBundleInfo($entity_id);
       foreach (array_keys($bundles) as $bundle_id) {
-        $fields = \Drupal::entityManager()->getFieldDefinitions($entity_id, $bundle_id);
+        $fields = $this->entityFieldManager->getFieldDefinitions($entity_id, $bundle_id);
 
         foreach ($fields as $field_name => $field_definition) {
           if ($field_definition->getType() == 'entity_reference' &&
@@ -215,7 +247,7 @@ class ImageDerivatives extends FormBase {
       'log_activity' => $values['log_activity'],
     ]);
 
-    drupal_set_message('You have saved the settings.');
+    $this->messenger->addMessage('You have saved the settings.');
   }
 
   /**
@@ -227,7 +259,7 @@ class ImageDerivatives extends FormBase {
     $derivative_queue->deleteQueue();
 
     _queue_all_images_for_derivatives();
-    drupal_set_message('Queue cleared and rest.');
+    $this->messenger->addMessage('Queue cleared and rest.');
   }
 
   /**
@@ -238,7 +270,7 @@ class ImageDerivatives extends FormBase {
 
     $derivative_queue->deleteQueue();
 
-    drupal_set_message('Queue cleared.');
+    $this->messenger->addMessage('Queue cleared.');
   }
 
 }

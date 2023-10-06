@@ -1,0 +1,25 @@
+{
+  "name": "bluecadet_image_derivatives",
+  "version": "3.0.0-alpha1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\"",
+    "build": "npx bldr build",
+    "clean": "rm -rfv ./assets/dist/* && rm -rfv ./modules/**/assets/dist/*",
+    "watch": "npx bldr watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bluecadet/bluecadet_image_derivatives.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bluecadet/bluecadet_image_derivatives/issues"
+  },
+  "homepage": "https://github.com/bluecadet/bluecadet_image_derivatives#readme",
+  "dependencies": {
+    "@bluecadet/drops": "^1.0.0-alpha.4"
+  }
+}

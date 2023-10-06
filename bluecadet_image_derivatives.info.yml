@@ -1,12 +1,13 @@
-type: module
 name: Bluecadet Image Derivatives
+type: module
 description: 'Creates Derivatives for specific images for specific image styles. Typically for use in headless CMS approaches.'
+core_version_requirement: ^9
+
 package: Bluecadet
-version: '8.x-2.2.0'
-core_version_requirement: ^8 || ^9
+
+dependencies:
+  - ultimate_cron
+  - media (>= 8.5.3)
 
 configure: bluecadet_image_derivatives.settings
 
-dependencies:
- - ultimate_cron
- - media (>= 8.5.3)

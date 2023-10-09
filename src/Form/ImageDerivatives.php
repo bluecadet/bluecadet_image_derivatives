@@ -106,7 +106,7 @@ class ImageDerivatives extends FormBase {
     $form['log_activity'] = [
       '#type' => 'checkbox',
       '#title' => 'Log Activity',
-      '#default_value' => isset($settings['log_activity']) ? $settings['log_activity'] : FALSE,
+      '#default_value' => ($settings['log_activity']) ?? FALSE,
     ];
 
     $bundles = $this->entityTypeBundleInfo->getBundleInfo('media');
@@ -122,7 +122,7 @@ class ImageDerivatives extends FormBase {
       '#description' => 'Please choose which Media bundles contain Images as their Primary source fields.',
       '#options' => $bundle_options,
       '#multiple' => TRUE,
-      '#default_value' => isset($settings['bundles']) ? $settings['bundles'] : [],
+      '#default_value' => ($settings['bundles']) ?? [],
       '#suffix' => '<hr><br>',
     ];
 
@@ -146,6 +146,11 @@ class ImageDerivatives extends FormBase {
       '#empty' => t('There are no fields.'),
       '#attributes' => [
         'class' => [''],
+      ],
+      '#prefix' => '<div class="wide-table-container">',
+      '#suffix' => '</div>',
+      '#attached' => [
+        'library' => ['bluecadet_image_derivatives/settings'],
       ],
     ];
 

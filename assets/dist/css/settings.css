@@ -1,0 +1,8 @@
+div.wide-table-container{
+  position:relative;
+  max-width:100%;
+  overflow-x:scroll;
+  overflow-y:hidden;
+}
+
+/*# sourceMappingURL=settings.css.map */

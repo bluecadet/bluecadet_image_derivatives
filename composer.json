@@ -13,9 +13,10 @@
   "minimum-stability": "dev",
   "require": {
     "php": "^7.4||^8.0",
-    "drupal/ultimate_cron": "^2.0@alpha",
+    "bluecadet/bc_drupal_package_manager": "^1.0",
     "composer/installers": "^1.9||^2.0",
     "drupal/core": "^9||^10",
+    "drupal/ultimate_cron": "^2.0@alpha",
     "oomphinc/composer-installers-extender": "^2.0"
   }
 }

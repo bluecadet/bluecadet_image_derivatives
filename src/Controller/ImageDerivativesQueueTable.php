@@ -6,7 +6,6 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Queue\QueueFactory;
 use Drupal\Core\Queue\QueueWorkerManagerInterface;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -57,14 +56,14 @@ class ImageDerivativesQueueTable extends ControllerBase {
     $msg_plur = ':num Items queued.';
 
     $data['data'] = [
-      '#markup' => \Drupal::translation()->formatPlural($queue_num, $msg_sing, $msg_plur, [':num' => $queue_num]),
+      '#markup' => $this->formatPlural($queue_num, $msg_sing, $msg_plur, [':num' => $queue_num]),
     ];
 
     $data['items'] = [
       '#type' => 'table',
       '#header' => ['Item ID', 'FID', 'Image Style ID', 'Created'],
       '#rows' => [],
-      '#empty' => t('There are no queued items.'),
+      '#empty' => $this->t('There are no queued items.'),
       '#attributes' => [
         'class' => [''],
       ],
@@ -78,7 +77,7 @@ class ImageDerivativesQueueTable extends ControllerBase {
     $items = $query->execute()->fetchAll();
 
     foreach ($items as $item) {
-      $item_data = unserialize($item->data);
+      $item_data = unserialize($item->data, ['allowed_classes' => FALSE]);
 
       $data['items']['#rows'][] = [
         $item->item_id,

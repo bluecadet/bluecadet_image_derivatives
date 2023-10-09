@@ -20,6 +20,6 @@
   },
   "homepage": "https://github.com/bluecadet/bluecadet_image_derivatives#readme",
   "dependencies": {
-    "@bluecadet/drops": "^1.0.0-alpha.4"
+    "@bluecadet/drops": "^1.0.0-alpha.5"
   }
 }

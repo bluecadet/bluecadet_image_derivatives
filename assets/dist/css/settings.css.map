@@ -1,0 +1,1 @@
+{"version":3,"sources":["assets/src/css/settings.css"],"names":[],"mappings":"AAAA;EACE,iBAAkB;EAClB,cAAe;EACf,iBAAkB;EAClB,iBAAkB;AACpB","file":"settings.css","sourcesContent":["div.wide-table-container {\n  position: relative;\n  max-width: 100%;\n  overflow-x: scroll;\n  overflow-y: hidden;\n}\n"]}

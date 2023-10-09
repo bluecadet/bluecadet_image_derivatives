@@ -2,6 +2,7 @@
 
 namespace Drupal\bluecadet_image_derivatives\Form;
 
+use Drupal\bluecadet_image_derivatives\DrupalStateTrait;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityFieldManager;
@@ -9,13 +10,14 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Queue\QueueFactory;
 use Drupal\Core\Queue\QueueWorkerManagerInterface;
-use Drupal\image\Entity\ImageStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Allows Admin to choose which image fields and image styles to be processed.
  */
 class ImageDerivatives extends FormBase {
+
+  use DrupalStateTrait;
 
   /**
    * QueueFactory.
@@ -97,11 +99,11 @@ class ImageDerivatives extends FormBase {
 
     $form['data'] = [
       'message' => [
-        '#markup' => \Drupal::translation()->formatPlural($queue_num, $msg_sing, $msg_plur, [':num' => $queue_num]),
+        '#markup' => $this->formatPlural($queue_num, $msg_sing, $msg_plur, [':num' => $queue_num]),
       ],
     ];
 
-    $settings = \Drupal::state()->get('bluecadet_image_derivatives.settings', []);
+    $settings = $this->drupalState()->get('bluecadet_image_derivatives.settings', []);
 
     $form['log_activity'] = [
       '#type' => 'checkbox',
@@ -119,7 +121,7 @@ class ImageDerivatives extends FormBase {
     $form['bundles'] = [
       '#type' => 'select',
       '#title' => 'Media Bundles',
-      '#description' => 'Please choose which Media bundles contain Images as their Primary source fields.',
+      '#description' => $this->t('Please choose which Media bundles contain Images as their Primary source fields.'),
       '#options' => $bundle_options,
       '#multiple' => TRUE,
       '#default_value' => ($settings['bundles']) ?? [],
@@ -128,7 +130,9 @@ class ImageDerivatives extends FormBase {
 
     $bundleFields = $this->buildBundleFields();
 
-    $styles = ImageStyle::loadMultiple();
+    // Grab Image style Entities.
+    $image_style_storage = $this->entityTypeManager->getStorage('image_style');
+    $styles = $image_style_storage->loadMultiple();
 
     $is_headers = ['Fields'];
     $is_defs = [];
@@ -143,7 +147,7 @@ class ImageDerivatives extends FormBase {
     $form['styles'] = [
       '#type' => 'table',
       '#header' => $is_headers,
-      '#empty' => t('There are no fields.'),
+      '#empty' => $this->t('There are no fields.'),
       '#attributes' => [
         'class' => [''],
       ],
@@ -246,7 +250,7 @@ class ImageDerivatives extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
 
     $values = $form_state->getValues();
-    \Drupal::state()->set('bluecadet_image_derivatives.settings', [
+    $this->drupalState()->set('bluecadet_image_derivatives.settings', [
       'bundles' => $values['bundles'],
       'styles' => $values['styles'],
       'log_activity' => $values['log_activity'],
@@ -263,7 +267,7 @@ class ImageDerivatives extends FormBase {
 
     $derivative_queue->deleteQueue();
 
-    _queue_all_images_for_derivatives();
+    bluecadet_image_derivatives__queue_all_images_for_derivatives();
     $this->messenger->addMessage('Queue cleared and rest.');
   }
 

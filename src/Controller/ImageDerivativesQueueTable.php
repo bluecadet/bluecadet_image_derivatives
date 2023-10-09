@@ -77,7 +77,7 @@ class ImageDerivativesQueueTable extends ControllerBase {
     $items = $query->execute()->fetchAll();
 
     foreach ($items as $item) {
-      $item_data = unserialize($item->data, ['allowed_classes' => FALSE]);
+      $item_data = unserialize($item->data, ['allowed_classes' => ['stdClass']]);
 
       $data['items']['#rows'][] = [
         $item->item_id,

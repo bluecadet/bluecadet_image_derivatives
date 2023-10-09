@@ -68,7 +68,6 @@ class ImageDerivativesTest extends BrowserTestBase {
    * Test Basic Functionality.
    */
   public function testBasicFunc() {
-    $session = $this->assertSession();
 
     $this->assertTrue(TRUE);
 

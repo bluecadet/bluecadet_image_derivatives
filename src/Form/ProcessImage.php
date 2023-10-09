@@ -2,18 +2,22 @@
 
 namespace Drupal\bluecadet_image_derivatives\Form;
 
+use Drupal\Core\Logger\LoggerChannelTrait;
+use Drupal\bluecadet_image_derivatives\DrupalStateTrait;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Queue\QueueFactory;
 use Drupal\Core\Queue\QueueWorkerManagerInterface;
-use Drupal\file\Entity\File;
-use Drupal\image\Entity\ImageStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Create Derivatives for a specific image.
  */
 class ProcessImage extends FormBase {
+
+  use DrupalStateTrait;
+  use LoggerChannelTrait;
 
   /**
    * QueueFactory.
@@ -30,11 +34,19 @@ class ProcessImage extends FormBase {
   protected $queueManager;
 
   /**
+   * Entity Type Manager.
+   *
+   * @var Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct(QueueFactory $queue, QueueWorkerManagerInterface $queue_manager) {
+  public function __construct(QueueFactory $queue, QueueWorkerManagerInterface $queue_manager, EntityTypeManagerInterface $entity_type_manager) {
     $this->queueFactory = $queue;
     $this->queueManager = $queue_manager;
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
@@ -43,7 +55,8 @@ class ProcessImage extends FormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('queue'),
-      $container->get('plugin.manager.queue_worker')
+      $container->get('plugin.manager.queue_worker'),
+      $container->get('entity_type.manager'),
     );
   }
 
@@ -59,18 +72,18 @@ class ProcessImage extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
-    $derivative_queue = $this->queueFactory->get('bcid_create_derivative');
-
-    // $queue_num = $derivative_queue->numberOfItems();
     $options = [];
-    $styles = ImageStyle::loadMultiple();
+
+    $image_style_storage = $this->entityTypeManager->getStorage('image_style');
+    $styles = $image_style_storage->loadMultiple();
+
     foreach ($styles as $style_id => $style_def) {
       $options[$style_id] = $style_def->label();
     }
     $form['fid'] = [
       '#type' => 'number',
       '#title' => 'FID',
-      '#description' => 'Type in image FID',
+      '#description' => $this->t('Type in image FID'),
       '#min' => 1,
       '#step' => 1,
       '#size' => 2,
@@ -106,8 +119,10 @@ class ProcessImage extends FormBase {
     $values = $form_state->getValues();
     $fid = $values['fid'];
 
+    $file_storage = $this->entityTypeManager->getStorage('file');
+
     // Validate File exists.
-    if ($file = File::load($fid)) {
+    if ($file = $file_storage->load($fid)) {
 
       // Validate file is an image file.
       $errors = file_validate_is_image($file);
@@ -127,14 +142,13 @@ class ProcessImage extends FormBase {
 
     $values = $form_state->getValues();
 
-    $module_settings = \Drupal::state()->get('bluecadet_image_derivatives.settings', []);
+    $module_settings = $this->drupalState()->get('bluecadet_image_derivatives.settings', []);
 
-    $queue_worker = \Drupal::service('plugin.manager.queue_worker');
-    $derivative_queue_worker = $queue_worker->createInstance('bcid_create_derivative');
+    $derivative_queue_worker = $this->queueManager->createInstance('bcid_create_derivative');
 
     try {
       if ($module_settings['log_activity']) {
-        \Drupal::logger('bluecadet_image_derivatives')->debug("Trying to force Image Creation. FID: @fid", [
+        $this->getLogger('bluecadet_image_derivatives')->debug("Trying to force Image Creation. FID: @fid", [
           '@fid' => $values['fid'],
         ]);
       }
@@ -150,8 +164,6 @@ class ProcessImage extends FormBase {
     catch (\Exception $e) {
       watchdog_exception('bluecadet_image_derivatives', $e);
     }
-
-    // drupal_set_message('You have saved the settings.');.
   }
 
 }

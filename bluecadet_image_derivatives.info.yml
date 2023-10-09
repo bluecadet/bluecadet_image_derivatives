@@ -12,6 +12,6 @@ dependencies:
 configure: bluecadet_image_derivatives.settings
 
 # Information added by packaging script on 2023-10-09
-version: 3.0.0-alpha3
+version: 3.0.0-rc1
 project: bluecadet_image_derivatives
-datestamp: 1696874915409
+datestamp: 1696875130423

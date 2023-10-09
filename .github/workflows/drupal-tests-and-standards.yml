@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         drupal-core: ['9.4.x', '9.5.x', '10.0.x', '10.1.x']
-        php-version: ['7.4', '8.0', '8.1', '8.2']
+        php-version: ['8.0', '8.1', '8.2']
         mariadb-version: ['10.4', '10.6']
         exclude:
           -
@@ -32,22 +32,6 @@ jobs:
           -
             drupal-core: '9.5.x'
             php-version: '8.2'
-            mariadb-version: '10.6'
-          -
-            drupal-core: '10.0.x'
-            php-version: '7.4'
-            mariadb-version: '10.4'
-          -
-            drupal-core: '10.0.x'
-            php-version: '7.4'
-            mariadb-version: '10.6'
-          -
-            drupal-core: '10.1.x'
-            php-version: '7.4'
-            mariadb-version: '10.4'
-          -
-            drupal-core: '10.1.x'
-            php-version: '7.4'
             mariadb-version: '10.6'
           -
             drupal-core: '10.0.x'

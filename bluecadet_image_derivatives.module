@@ -8,7 +8,9 @@
 use Bluecadet\DrupalPackageManager\Checker;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Queue\RequeueException;
 use Drupal\Core\Queue\SuspendQueueException;
+use Drupal\Core\Utility\Error;
 use Drupal\media\Entity\Media;
 
 /**
@@ -33,31 +35,36 @@ function bluecadet_image_derivatives_run_queue() {
   $start = time();
 
   while ((time() - $start) < 8) {
+    // @phpstan-ignore-next-line claimItem() returns object|false; already
+    // guarded by the truthy check below.
     $item = $derivative_queue->claimItem();
     if ($item) {
       try {
         if ($module_settings['log_activity']) {
           \Drupal::logger('bluecadet_image_derivatives')->debug("Trying to run item. item_id: @item_id, FID: @fid", [
+            // @phpstan-ignore-next-line see above.
             '@item_id' => $item->item_id,
+            // @phpstan-ignore-next-line see above.
             '@fid' => $item->data->fid,
           ]);
         }
 
+        // @phpstan-ignore-next-line see above.
         $derivative_queue_worker->processItem($item->data);
         $derivative_queue->deleteItem($item);
       }
       catch (RequeueException $e) {
         // The worker requested the task be immediately requeued.
-        $queue->releaseItem($item);
+        $derivative_queue->releaseItem($item);
       }
       catch (SuspendQueueException $e) {
 
         $derivative_queue->releaseItem($item);
 
-        watchdog_exception('bluecadet_image_derivatives', $e);
+        Error::logException(\Drupal::logger('bluecadet_image_derivatives'), $e);
       }
       catch (\Exception $e) {
-        watchdog_exception('bluecadet_image_derivatives', $e);
+        Error::logException(\Drupal::logger('bluecadet_image_derivatives'), $e);
       }
     }
   }
@@ -90,7 +97,7 @@ function bluecadet_image_derivatives__queue_all_images_for_derivatives() {
         $r = $query->execute()->fetchAll();
 
         foreach ($r as $f) {
-          $media = Media::Load($f->mid);
+          $media = Media::load($f->mid);
 
           $b = $media->bundle();
           $media_type = \Drupal::entityTypeManager()->getStorage('media_type')->load($b);
@@ -155,7 +162,7 @@ function bluecadet_image_derivatives__process_dervs(EntityInterface $entity) {
 
               if (!empty($field_value) && in_array($b, $settings['bundles'])) {
                 $item = new \stdClass();
-                $item->fid = $field_value->target_id;
+                $item->fid = $field_value['target_id'];
                 $item->image_style_id = $image_style_id;
                 $derivative_queue->createItem($item);
               }

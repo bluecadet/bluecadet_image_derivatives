@@ -36,21 +36,21 @@ class ImageDerivatives extends FormBase {
   /**
    * Entity Type Manager.
    *
-   * @var Drupal\Core\Entity\EntityTypeManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
   /**
    * Entity Type Manager.
    *
-   * @var Drupal\Core\Entity\EntityTypeBundleInfo
+   * @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface
    */
   protected $entityTypeBundleInfo;
 
   /**
    * Entity Type Manager.
    *
-   * @var Drupal\Core\Entity\EntityFieldManager
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
    */
   protected $entityFieldManager;
 

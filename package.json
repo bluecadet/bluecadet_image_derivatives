@@ -19,7 +19,26 @@
     "url": "https://github.com/bluecadet/bluecadet_image_derivatives/issues"
   },
   "homepage": "https://github.com/bluecadet/bluecadet_image_derivatives#readme",
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
-    "@bluecadet/drops": "^1.0.0-alpha.5"
+    "@bluecadet/bldr": "2.0.0-alpha.12",
+    "@bluecadet/drops": "^1.2.1",
+    "postcss-advanced-variables": "^5.0.0",
+    "postcss-assets": "^6.0.0",
+    "postcss-custom-media": "^11.0.6",
+    "postcss-discard-comments": "^7.0.8",
+    "postcss-easy-import": "^4.0.0",
+    "postcss-nested": "^7.0.2",
+    "postcss-preset-env": "^10.6.1"
+  },
+  "devDependencies": {
+    "postcss-pxtorem": "^6.1.0"
+  },
+  "overrides": {
+    "postcss-strip-inline-comments": {
+      "postcss": "^8.5.15"
+    }
   }
 }

@@ -2,6 +2,7 @@
 
 namespace Drupal\bluecadet_image_derivatives\Form;
 
+use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Logger\LoggerChannelTrait;
 use Drupal\bluecadet_image_derivatives\DrupalStateTrait;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -9,6 +10,8 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Queue\QueueFactory;
 use Drupal\Core\Queue\QueueWorkerManagerInterface;
+use Drupal\Core\Queue\SuspendQueueException;
+use Drupal\Core\Utility\Error;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -36,17 +39,25 @@ class ProcessImage extends FormBase {
   /**
    * Entity Type Manager.
    *
-   * @var Drupal\Core\Entity\EntityTypeManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
   /**
+   * Image Factory.
+   *
+   * @var \Drupal\Core\Image\ImageFactory
+   */
+  protected $imageFactory;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct(QueueFactory $queue, QueueWorkerManagerInterface $queue_manager, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(QueueFactory $queue, QueueWorkerManagerInterface $queue_manager, EntityTypeManagerInterface $entity_type_manager, ImageFactory $image_factory) {
     $this->queueFactory = $queue;
     $this->queueManager = $queue_manager;
     $this->entityTypeManager = $entity_type_manager;
+    $this->imageFactory = $image_factory;
   }
 
   /**
@@ -57,6 +68,7 @@ class ProcessImage extends FormBase {
       $container->get('queue'),
       $container->get('plugin.manager.queue_worker'),
       $container->get('entity_type.manager'),
+      $container->get('image.factory'),
     );
   }
 
@@ -125,8 +137,8 @@ class ProcessImage extends FormBase {
     if ($file = $file_storage->load($fid)) {
 
       // Validate file is an image file.
-      $errors = file_validate_is_image($file);
-      if (!empty($errors)) {
+      $image = $this->imageFactory->get($file->getFileUri());
+      if (!$image->isValid()) {
         $form_state->setErrorByName('fid', "FID: $fid: Is not an image.");
       }
     }
@@ -159,10 +171,10 @@ class ProcessImage extends FormBase {
       $derivative_queue_worker->processItem($data);
     }
     catch (SuspendQueueException $e) {
-      watchdog_exception('bluecadet_image_derivatives', $e);
+      Error::logException($this->getLogger('bluecadet_image_derivatives'), $e);
     }
     catch (\Exception $e) {
-      watchdog_exception('bluecadet_image_derivatives', $e);
+      Error::logException($this->getLogger('bluecadet_image_derivatives'), $e);
     }
   }
 

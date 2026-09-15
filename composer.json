@@ -12,10 +12,10 @@
   "license": "GPL-2.0+",
   "minimum-stability": "dev",
   "require": {
-    "php": "^7.4||^8.0",
-    "bluecadet/bc_drupal_package_manager": "^1.0",
+    "php": "^8.2||^8.3||^8.4",
+    "bluecadet/bc_drupal_package_manager": "^1.1",
     "composer/installers": "^1.9||^2.0",
-    "drupal/core": "^9||^10",
+    "drupal/core": "^10.5||^11.2",
     "drupal/ultimate_cron": "^2.0@alpha",
     "oomphinc/composer-installers-extender": "^2.0"
   }
